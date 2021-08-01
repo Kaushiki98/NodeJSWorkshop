@@ -1,21 +1,58 @@
 // @purpose   : creats user schema and stores data in database.
-
 const UserModel = require('./model');
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const ACCESS_JWT_ACTIVATE = "secret123"
 const bcrypt = require('bcrypt')
+const multer = require('multer');
+const uploads = multer({ dest: 'G:/images1' }) //create folder
 
-// @description : To validate the users input
+// To validate the users input
 const RegisterValidation = Joi.object({
   userName: Joi.string().required(),
   password: Joi.string().required()
 });
 
-// @description : To generate tokens
+// To generate tokens
 const createToken = (result) => {
   return jwt.sign({ result }, ACCESS_JWT_ACTIVATE, { expiresIn: '1h' });
 }
+
+
+const storage = multer.diskStorage({
+  //copy file in destination
+  destination: (req, file, cb) => {
+    cb(null, 'G:/images1')
+  },
+  // copy original file
+  filename: (req, file, cb) => {
+    console.log(file.originalname);
+    cb(null, Date.now() + '-' + file.originalname)
+  }
+})
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 1000000 },
+  fileFilter: (req, file, cb) => {
+    checkFileType(file, cb);
+  }
+}).single('image');
+// check file type
+const checkFileType = (file, cb) => {
+  // Allow extention
+  const filetypes = /jpeg|jpg|png|gif/;
+  // check extention
+  const extname = filetypes.test(file.originalname);
+  //check mimetype
+  const mimetype = filetypes.test(file.mimetype)
+
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb('Error: Images Only!')
+  }
+}
+
 
 class userController {
 
@@ -100,6 +137,18 @@ class userController {
       });
     }
   }
+
+  // @description : To upload the Images
+  uploadImg = (req, res) => {
+    upload(req, res, (err) => {
+      if (err) {
+        res.send({ status: 500, message: "not saved" })
+      } else {
+        res.send({ status: 200, message: "File saved" })
+      }
+    })
+  }
+
 }
 
 module.exports = new userController()

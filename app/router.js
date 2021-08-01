@@ -16,4 +16,7 @@ router.post("/userLogin", user.loginUser);
 //get method to generate tokens 
 router.get("/token", user.token);
 
+// put method to upload file
+router.put("/uploadImg", user.uploadImg);
+
 module.exports = router ;
