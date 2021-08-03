@@ -42,6 +42,13 @@ class user {
     UserModel.findOne({ userName: userLogin.userName }, callback)
   }
   
+  searchKey = (req, res, callback) => {
+    UserModel.find(callback)
+  }
+
+  usersList = (users, callback) => {
+    UserModel.find({ userName: users.userName }, callback)
+  }
 }
 
 module.exports = new user()

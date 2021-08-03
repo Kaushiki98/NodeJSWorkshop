@@ -18,7 +18,7 @@ const createToken = (result) => {
   return jwt.sign({ result }, ACCESS_JWT_ACTIVATE, { expiresIn: '1h' });
 }
 
-
+// to image save in local storage system
 const storage = multer.diskStorage({
   //copy file in destination
   destination: (req, file, cb) => {
@@ -52,7 +52,6 @@ const checkFileType = (file, cb) => {
     cb('Error: Images Only!')
   }
 }
-
 
 class userController {
 
@@ -149,6 +148,64 @@ class userController {
     })
   }
 
+  // @description : To search the user given in the key value
+  SearchKey = (req, res) => {
+    const searchUser = {
+      userName: req.query.userName
+    };
+    UserModel.searchKey(searchUser, (err, results) => {
+      if (err) {
+        console.error(err);
+      } else {
+        let isValid = true;
+        for (searchUser.userName in results) {
+          isValid = isValid && searchUser[searchUser.userName] == results[searchUser.userName];
+        }
+        res.send(results);
+      }
+    })
+  }
+
+  // @description : to get the selected keys
+  selectKey = (req, res) => {
+    UserModel.searchKey(req, res, (err, data) => {
+      if (data) {
+        res.status(200).send({ data })
+      } else {
+        res.status(500).send(err)
+      }
+    })
+  }
+
+  // @description : To upload the Images
+  paginated = (req, res) => {
+    UserModel.searchKey(req, res, (err, results) => {
+      if (results) {
+        const pageLimit = {
+          page: parseInt(req.query.page),
+          limit: parseInt(req.query.limit)
+        };
+        const perPage = 5
+        var startIndex = (pageLimit.page - 1) * perPage;
+
+        const limit = pageLimit.limit;
+        const endIndex = startIndex + limit;
+
+        const users = [];
+
+        while (startIndex < endIndex) {
+          console.log(results[startIndex])
+          users.push(results[startIndex]);
+          startIndex++;
+        }
+        res.send(users);
+
+      } else {
+        console.log(err)
+        res.status(500).json({ message: e.message })
+      }
+    })
+  }
 }
 
 module.exports = new userController()

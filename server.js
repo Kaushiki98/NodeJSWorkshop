@@ -4,7 +4,7 @@ const express = require('express')
 const app = express();
 
 // Configuring the database
-const dbConfig= require('./dbconfig');
+const dbConfig= require('./config/dbconfig');
 const mongoose = require('mongoose');
 
 app.use(express.json())
@@ -14,7 +14,8 @@ app.use(express.urlencoded({ extended: true }))
 
 // Connecting to the database
 mongoose.connect(dbConfig.url, {
-  useNewUrlParser:true
+  useNewUrlParser:true,
+  useUnifiedTopology: true
 }).then(() => {
   console.log("Successfully connected to database");
 }).catch(err => {
